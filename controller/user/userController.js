@@ -1,6 +1,6 @@
-const BaseController = require('./baseController')
-const {IdType} = require('../mongodb/model/idModel')
-const UserModel = require('../mongodb/model/userModel')
+const BaseController = require('../baseController')
+const {IdType} = require('../../mongodb/model/idModel')
+const UserModel = require('../../mongodb/model/user/userModel')
 
 class UserController extends BaseController{
     constructor() {
@@ -11,15 +11,36 @@ class UserController extends BaseController{
 
     // 用户列表
     async listUser(ctx, next){
-        const list = await UserModel.find({}, '-_id')
-        ctx.body = list
+        const req = ctx.request;
+        const {name, current = 1, pageSize = 20 } = req.query
+        const offset = pageSize * (current - 1)
+        let filter = {};
+        if(name) filter.name = name
+        const list = await UserModel.find(filter, {'_id': 0, '__v': 0, 'labelList._id': 0}).limit(Number(pageSize)).skip(Number(offset))
+        const count = await UserModel.count(filter)
+        ctx.body = {
+            list,
+            amount: count,
+        }
     }
 
     // 保存用户
     async saveUser(ctx, next){
         const req = ctx.request;
-        const id = req.body.id;
-        console.log('================ddd', id);
+        const { id, name, age, mobile } = req.body
+        try{
+            if(!name) throw new Error('名字不能为空')
+            if(!age) throw new Error('年龄不能为空')
+            if(!mobile) throw new Error('手机号不能为空')
+        }catch(e){
+            ctx.body = {
+                success: false,
+                msg: e.message
+            }
+            return false
+        }
+
+        // 修改
         if(id){
             await UserModel.findOneAndUpdate({id}, {$set: req.body});
             ctx.body = {
@@ -29,6 +50,7 @@ class UserController extends BaseController{
             return true;
         }
 
+        // 新增
         let user_id;
         try{
             user_id = await this.createId(IdType.USER_ID)
@@ -44,7 +66,6 @@ class UserController extends BaseController{
             ...req.body,
             id: user_id,
         };
-        console.log('================ddd=========', data);
         const user = new UserModel(data);
         user.save().then(r => {
 

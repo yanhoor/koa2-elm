@@ -4,7 +4,12 @@ const schema = mongoose.Schema({
     id: Number,
     name: String,
     age: Number,
-    mobile: String
+    mobile: String,
+    labelList: [{
+        name: String,
+        id: Number,
+        color: String
+    }],
 });
 
 schema.index({ id: 1 });
