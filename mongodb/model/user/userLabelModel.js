@@ -2,6 +2,8 @@ const mongoose = require('mongoose')
 
 const schema = mongoose.Schema({
     id: Number,
+    create_time: String,
+    modify_time: String,
     name: {
         type: String,
         required: [true, '名称不能为空']

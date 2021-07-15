@@ -1,6 +1,7 @@
 const BaseController = require('../baseController')
 const {IdType} = require('../../mongodb/model/idModel')
 const UserModel = require('../../mongodb/model/user/userModel')
+const tf = require('time-formater')
 
 class UserController extends BaseController{
     constructor() {
@@ -17,7 +18,7 @@ class UserController extends BaseController{
         let filter = {};
         if(name) filter.name = name
         const list = await UserModel.find(filter, {'_id': 0, '__v': 0, 'labelList._id': 0}).limit(Number(pageSize)).skip(Number(offset))
-        const count = await UserModel.count(filter)
+        const count = await UserModel.countDocuments(filter)
         ctx.body = {
             list,
             amount: count,
@@ -42,7 +43,11 @@ class UserController extends BaseController{
 
         // 修改
         if(id){
-            await UserModel.findOneAndUpdate({id}, {$set: req.body});
+            const d = {
+                ...req.body,
+                modify_time: tf().format('YYYY-MM-DD HH:mm:ss')
+            }
+            await UserModel.findOneAndUpdate({id}, {$set: d});
             ctx.body = {
                 success: true,
                 msg: '保存成功'
@@ -65,6 +70,7 @@ class UserController extends BaseController{
         let data = {
             ...req.body,
             id: user_id,
+            create_time: tf().format('YYYY-MM-DD HH:mm:ss')
         };
         const user = new UserModel(data);
         user.save().then(r => {

@@ -1,4 +1,5 @@
 const users = require('./users')
+const admin = require('./admin')
 const cors = require('koa2-cors')
 
 module.exports = app => {
@@ -13,4 +14,5 @@ module.exports = app => {
     allowHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   }))
   app.use(users.routes(), users.allowedMethods())
+  app.use(admin.routes(), users.allowedMethods())
 }

@@ -5,6 +5,8 @@ const schema = mongoose.Schema({
     name: String,
     age: Number,
     mobile: String,
+    create_time: String,
+    modify_time: String,
     labelList: [{
         name: String,
         id: Number,

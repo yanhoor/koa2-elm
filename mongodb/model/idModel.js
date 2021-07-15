@@ -1,10 +1,12 @@
 const mongoose  = require('mongoose');
 class IdType{
     static USER_ID = 'user_id'
+    static ADMIN_ID = 'admin_id'
     static USER_LABEL_ID = 'user_label_id'
 }
 const idType = {
     [IdType.USER_ID]: Number,
+    [IdType.ADMIN_ID]: Number,
     [IdType.USER_LABEL_ID]: Number,
 };
 
@@ -14,6 +16,7 @@ const model = mongoose.model('Id', schema);
 
 const initData = {
     [IdType.USER_ID]: 0,
+    [IdType.ADMIN_ID]: 0,
     [IdType.USER_LABEL_ID]: 0,
 }
 

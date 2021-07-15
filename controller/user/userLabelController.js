@@ -1,6 +1,7 @@
 const BaseController = require('../baseController')
 const { IdType } = require('../../mongodb/model/idModel')
 const userLabelModel = require('../../mongodb/model/user/userLabelModel')
+const tf = require('time-formater')
 
 class UserLabelController extends BaseController{
     constructor() {
@@ -39,7 +40,11 @@ class UserLabelController extends BaseController{
 
         // 修改
         if(id){
-            await userLabelModel.findOneAndUpdate({id}, {$set: req.body});
+            const d = {
+                ...req.body,
+                modify_time: tf().format('YYYY-MM-DD HH:mm:ss')
+            }
+            await userLabelModel.findOneAndUpdate({id}, {$set: d});
             ctx.body = {
                 success: true,
                 msg: '保存成功'
@@ -60,7 +65,11 @@ class UserLabelController extends BaseController{
             return
         }
 
-        let newData = { ...req.body, id: user_label_id}
+        let newData = {
+            ...req.body,
+            id: user_label_id,
+            create_time: tf().format('YYYY-MM-DD HH:mm:ss')
+        }
         const userLabel = new userLabelModel(newData)
         userLabel.save().then(r => {
 
