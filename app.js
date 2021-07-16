@@ -65,7 +65,7 @@ app.use(async (ctx, next) => {
 // middlewares，调用app.use()的顺序决定了middleware的顺序
 // 如果一个middleware没有调用await next()，那么后续的middleware将不再执行了。await不要省略
 app.use(async (ctx, next) => {
-  if(!ctx.session.admin_id && !ctx.url.includes('/login')){
+  if(!ctx.session.admin_id && !ctx.url.includes('/admin')){
     ctx.body = {
       code: 900,
       success: false,

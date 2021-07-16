@@ -7,7 +7,18 @@ class AdminController extends BaseController{
     constructor() {
         super();
         this.login = this.login.bind(this)
+        this.logout = this.logout.bind(this)
         this.register = this.register.bind(this)
+        this.userInfo = this.userInfo.bind(this)
+    }
+
+    async userInfo(ctx, next){
+        const admin_id = ctx.session.admin_id
+        const admin = await AdminModel.findOne({ id: admin_id }, {'_id': 0, '__v': 0 })
+        ctx.body = {
+            success: true,
+            info: admin
+        }
     }
 
     async login(ctx, next){
@@ -35,8 +46,16 @@ class AdminController extends BaseController{
             ctx.session.admin_id = admin.id
             ctx.body = {
                 success: true,
-                msg: '登陆成功'
+                msg: '登录成功'
             }
+        }
+    }
+
+    async logout(ctx, next){
+        ctx.session = null
+        ctx.body = {
+            success: true,
+            msg: '退出登录成功'
         }
     }
 
