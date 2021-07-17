@@ -1,5 +1,4 @@
 const BaseController = require('../baseController')
-const { IdType } = require('../../mongodb/model/idModel')
 const userLabelModel = require('../../mongodb/model/user/userLabelModel')
 const tf = require('time-formater')
 
@@ -55,7 +54,7 @@ class UserLabelController extends BaseController{
         // 新增
         let user_label_id
         try{
-            user_label_id = await this.createId(IdType.USER_LABEL_ID)
+            user_label_id = await this.createId(this.idType.USER_LABEL_ID)
         }catch(e){
             console.log('获取用户标签id失败')
             ctx.body = {

@@ -1,5 +1,4 @@
 const BaseController = require('../baseController')
-const {IdType} = require('../../mongodb/model/idModel')
 const UserModel = require('../../mongodb/model/user/userModel')
 const tf = require('time-formater')
 
@@ -58,7 +57,7 @@ class UserController extends BaseController{
         // 新增
         let user_id;
         try{
-            user_id = await this.createId(IdType.USER_ID)
+            user_id = await this.createId(this.idType.USER_ID)
         }catch(e){
             console.log('获取用户id失败')
             ctx.body = {

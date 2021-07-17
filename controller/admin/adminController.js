@@ -1,5 +1,4 @@
 const BaseController = require('../baseController')
-const {IdType} = require('../../mongodb/model/idModel')
 const AdminModel = require('../../mongodb/model/admin/adminModel')
 const tf = require('time-formater')
 
@@ -10,6 +9,7 @@ class AdminController extends BaseController{
         this.logout = this.logout.bind(this)
         this.register = this.register.bind(this)
         this.userInfo = this.userInfo.bind(this)
+        this.updateAvatar = this.updateAvatar.bind(this)
     }
 
     async userInfo(ctx, next){
@@ -18,6 +18,29 @@ class AdminController extends BaseController{
         ctx.body = {
             success: true,
             info: admin
+        }
+    }
+
+    async updateAvatar(ctx, next){
+        const req = ctx.request;
+        const admin_id = ctx.session.admin_id
+        let path = ''
+        try{
+            path = await this.upload(req.files.file)
+        }catch(e){
+            ctx.body = {
+                success: false,
+                msg: '上传失败'
+            }
+        }
+        const updateData = {
+            avatar: path,
+            modify_time: tf().format('YYYY-MM-DD HH:mm:ss')
+        }
+        await AdminModel.findOneAndUpdate({id: admin_id}, {$set: updateData})
+        ctx.body = {
+            success: true,
+            path: path
         }
     }
 
@@ -86,7 +109,7 @@ class AdminController extends BaseController{
         // 新增
         let admin_id;
         try{
-            admin_id = await this.createId(IdType.ADMIN_ID)
+            admin_id = await this.createId(this.idType.ADMIN_ID)
         }catch(e){
             console.log('获取用户id失败')
             ctx.body = {

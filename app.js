@@ -3,11 +3,11 @@ const app = new Koa()
 const views = require('koa-views')
 const json = require('koa-json')
 const onerror = require('koa-onerror')
-const bodyparser = require('koa-bodyparser')
 const logger = require('koa-logger')
 const indexRouter = require('./routes/index')
 const session = require('koa-session')
-const passport = require('koa-passport')
+const path = require('path')
+const koaBody = require('koa-body')
 
 require('./mongodb/db'); // 连接数据库
 
@@ -43,9 +43,17 @@ app.on('session:missed', (key,value,ctx) => console.log('==========session misse
 // error handler
 onerror(app)
 
-app.use(bodyparser({
-  enableTypes:['json', 'form', 'text']
+app.use(koaBody({
+  // 支持文件格式
+  multipart: true,
+  formidable: {
+    // 上传目录
+    uploadDir: path.join(__dirname, './public/upload'),
+    // 保留文件扩展名
+    keepExtensions: true,
+  }
 }))
+
 app.use(json())
 app.use(logger())
 app.use(require('koa-static')(__dirname + '/public'))
