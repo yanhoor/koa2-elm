@@ -37,7 +37,11 @@ class AdminController extends BaseController{
             avatar: path,
             modify_time: tf().format('YYYY-MM-DD HH:mm:ss')
         }
-        await AdminModel.findOneAndUpdate({id: admin_id}, {$set: updateData})
+        const admin = await AdminModel.findOne({ id: admin_id })
+        if(admin.avatar){
+            await this.deleteFile(admin.avatar)
+        }
+        await admin.update({$set: updateData})
         ctx.body = {
             success: true,
             path: path

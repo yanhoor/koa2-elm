@@ -15,7 +15,7 @@ class UserLabelController extends BaseController{
         let filter = {};
         if(name) filter.name = name
         const list = await userLabelModel.find(filter, {'_id': 0, '__v': 0}).limit(Number(pageSize)).skip(Number(offset))
-        const count = await userLabelModel.count(filter)
+        const count = await userLabelModel.countDocuments(filter)
         ctx.body = {
             list,
             amount: count,

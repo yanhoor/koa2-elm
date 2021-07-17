@@ -8,6 +8,7 @@ const indexRouter = require('./routes/index')
 const session = require('koa-session')
 const path = require('path')
 const koaBody = require('koa-body')
+const config = require('config-lite')(__dirname);
 
 require('./mongodb/db'); // 连接数据库
 
@@ -19,7 +20,7 @@ const CONFIG = {
   /** 'session' will result in a cookie that expires when session/browser is closed */
   /** Warning: If a session cookie is stolen, this cookie will never expire */
   maxAge: 1000 * 60 * 60 * 24 * 7,
-  // maxAge: 1000 * 30,
+  // maxAge: 1000 * 10,
   autoCommit: true, /** (boolean) automatically commit headers (default true) */
   overwrite: true, /** (boolean) can overwrite or not (default true) */
   httpOnly: false, /** (boolean) httpOnly or not (default true) */
@@ -48,7 +49,7 @@ app.use(koaBody({
   multipart: true,
   formidable: {
     // 上传目录
-    uploadDir: path.join(__dirname, './public/upload'),
+    uploadDir: path.join(__dirname, config.uploadDir),
     // 保留文件扩展名
     keepExtensions: true,
   }
