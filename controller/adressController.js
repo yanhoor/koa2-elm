@@ -18,7 +18,7 @@ class AddressController extends BaseController{
     // 获取省市区，parentCode：父代码，为空时查省份
     async queryChildren(ctx, next){
         const req = ctx.request;
-        const { parentCode } = req.body
+        const { parentCode } = req.query
         let p
         p = parentCode ? `id=${parentCode}&key=${this.globalConfig.tencentAddressKey}` : `key=${this.globalConfig.tencentAddressKey}`
         const sig = md5(`/ws/district/v1/getchildren?${p}${this.globalConfig.tencentSK}`)
@@ -34,7 +34,7 @@ class AddressController extends BaseController{
     // 城市/区域搜索
     async searchAddress(ctx, next){
         const req = ctx.request;
-        const { keyword, cityName = '北京' } = req.body
+        const { keyword, cityName = '北京' } = req.query
         const p = `boundary=region(${cityName})&key=${this.globalConfig.tencentAddressKey}&keyword=${keyword}`
         const sig = md5(`/ws/place/v1/search?${p}${this.globalConfig.tencentSK}`)
         const res = await this.fetch('https://apis.map.qq.com/ws/place/v1/search', {

@@ -54,7 +54,7 @@ class BaseController{
     }
 
     // 保存文件到本地目录
-    async upload(file){
+    async saveLocalFile(file){
         return new Promise(async (resolve, reject) => {
             const ext = path.extname(file.name)
             if(!config.imgTypeList.includes(ext)){

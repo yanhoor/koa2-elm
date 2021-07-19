@@ -17,5 +17,5 @@ const schema = mongoose.Schema({
 schema.index({id: 1})
 mongoose.set('useCreateIndex',true)
 
-module.exports = mongoose.model('UserLabel', schema)
+module.exports = mongoose.model('UserLabel', schema, 'userLabels')
 

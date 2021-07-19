@@ -26,7 +26,7 @@ class AdminController extends BaseController{
         const admin_id = ctx.session.admin_id
         let path = ''
         try{
-            path = await this.upload(req.files.file)
+            path = await this.saveLocalFile(req.files.file)
         }catch(e){
             ctx.body = {
                 success: false,

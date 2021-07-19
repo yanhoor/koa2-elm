@@ -11,7 +11,7 @@ class ShopCategoryController extends BaseController{
 
     async getList(ctx, next){
         const req = ctx.request;
-        const {name, current = 1, pageSize = 20 } = req.query
+        const {name, current = 1, pageSize = 0 } = req.query
         const offset = pageSize * (current - 1)
         let filter = {};
         if(name) filter.name = name
@@ -19,6 +19,7 @@ class ShopCategoryController extends BaseController{
         const count = await ShopCategoryModel.countDocuments(filter)
         ctx.body = {
             list,
+            success: true,
             amount: count,
         }
     }
@@ -55,10 +56,18 @@ class ShopCategoryController extends BaseController{
         try{
             cate_id = await this.createId(this.idType.SHOP_CATEGORY_ID)
         }catch(e){
-            console.log('获取店铺分类id失败')
+            console.log('获取店铺分类id失败', e.message)
             ctx.body = {
                 success: false,
                 msg: '获取数据失败'
+            }
+            return
+        }
+        const d = await ShopCategoryModel.findOne({name})
+        if(d){
+            ctx.body = {
+                success: false,
+                msg: '分类名称不能重复'
             }
             return
         }

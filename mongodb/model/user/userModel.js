@@ -7,14 +7,10 @@ const schema = mongoose.Schema({
     mobile: String,
     create_time: String,
     modify_time: String,
-    labelList: [{
-        name: String,
-        id: Number,
-        color: String
-    }],
+    labelIds: [{ type: Number, ref: 'userLabels' }],
 });
 
 schema.index({ id: 1 });
 mongoose.set('useCreateIndex',true)
 
-module.exports = mongoose.model('User', schema);
+module.exports = mongoose.model('User', schema, 'users');

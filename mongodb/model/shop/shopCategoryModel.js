@@ -10,4 +10,4 @@ const schema = mongoose.Schema({
 schema.index({ id: 1 });
 mongoose.set('useCreateIndex',true)
 
-module.exports = mongoose.model('shopCategory', schema);
+module.exports = mongoose.model('ShopCategory', schema, 'shopCategories');

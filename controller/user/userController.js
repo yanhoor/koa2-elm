@@ -16,7 +16,20 @@ class UserController extends BaseController{
         const offset = pageSize * (current - 1)
         let filter = {};
         if(name) filter.name = name
-        const list = await UserModel.find(filter, {'_id': 0, '__v': 0, 'labelList._id': 0}).limit(Number(pageSize)).skip(Number(offset))
+        const list = await UserModel.aggregate([
+            { $match : filter },
+            { $limit : Number(pageSize) },
+            { $skip : Number(offset) },
+            { $project : { _id : 0 , __v : 0 } },
+            {
+                $lookup: {
+                    from: 'userLabels',
+                    localField: 'labelIds',
+                    foreignField: 'id',
+                    as: 'labelList',
+                }
+            }
+        ])
         const count = await UserModel.countDocuments(filter)
         ctx.body = {
             list,

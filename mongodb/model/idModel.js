@@ -5,6 +5,7 @@ class IdType{
     static USER_LABEL_ID = 'user_label_id'
     static IMG_ID = 'img_id'
     static SHOP_CATEGORY_ID = 'shop_category_id'
+    static SHOP_ID = 'shop_id'
 }
 const idType = {
     [IdType.USER_ID]: Number,
@@ -12,6 +13,7 @@ const idType = {
     [IdType.USER_LABEL_ID]: Number,
     [IdType.IMG_ID]: Number,
     [IdType.SHOP_CATEGORY_ID]: Number,
+    [IdType.SHOP_ID]: Number,
 };
 
 const schema = mongoose.Schema(idType);
@@ -24,6 +26,7 @@ const initData = {
     [IdType.USER_LABEL_ID]: 0,
     [IdType.IMG_ID]: 0,
     [IdType.SHOP_CATEGORY_ID]: 0,
+    [IdType.SHOP_ID]: 0,
 }
 
 model.findOne((e, doc) => {
