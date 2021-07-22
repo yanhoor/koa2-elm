@@ -7,7 +7,7 @@ const schema = mongoose.Schema({
     name: String,
 })
 
-schema.index({ id: 1 });
+schema.index({ id: 1, modify_time: -1 });
 mongoose.set('useCreateIndex',true)
 
 module.exports = mongoose.model('ShopCategory', schema, 'shopCategories');

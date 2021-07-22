@@ -6,6 +6,7 @@ router.prefix('/shop')
 
 router.get('/category_list', ShopCategoryController.getList)
 router.get('/list', ShopController.getList)
+router.get('/detail', ShopController.getShopInfo)
 router.post('/category_save', ShopCategoryController.save)
 router.post('/save', ShopController.save)
 

@@ -10,7 +10,7 @@ const schema = mongoose.Schema({
     labelIds: [{ type: Number, ref: 'userLabels' }],
 });
 
-schema.index({ id: 1 });
+schema.index({ id: 1, modify_time: -1 });
 mongoose.set('useCreateIndex',true)
 
 module.exports = mongoose.model('User', schema, 'users');

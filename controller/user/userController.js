@@ -28,7 +28,8 @@ class UserController extends BaseController{
                     foreignField: 'id',
                     as: 'labelList',
                 }
-            }
+            },
+            { $sort : { modify_time : -1 } }
         ])
         const count = await UserModel.countDocuments(filter)
         ctx.body = {
@@ -79,10 +80,12 @@ class UserController extends BaseController{
             }
             return
         }
+        const t = tf().format('YYYY-MM-DD HH:mm:ss')
         let data = {
             ...req.body,
             id: user_id,
-            create_time: tf().format('YYYY-MM-DD HH:mm:ss')
+            create_time: t,
+            modify_time: t,
         };
         const user = new UserModel(data);
         user.save().then(r => {

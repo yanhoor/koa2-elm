@@ -1,6 +1,6 @@
 const BaseController = require('../baseController')
 const ShopModel = require('../../mongodb/model/shop/shopModel')
-const shopCategoryModel = require('../../mongodb/model/shop/shopCategoryModel')
+const AdminModel = require('../../mongodb/model/admin/adminModel')
 const tf = require('time-formater')
 
 class ShopController extends BaseController{
@@ -8,28 +8,65 @@ class ShopController extends BaseController{
         super();
         this.getList = this.getList.bind(this)
         this.save = this.save.bind(this)
+        this.getShopInfo = this.getShopInfo.bind(this)
+    }
+
+    async getShopInfo(ctx, next){
+        const req = ctx.request;
+        const { id } = req.query
+        if(!id){
+            ctx.body = {
+                success: false,
+                msg: '缺少参数：id'
+            }
+            return
+        }
+        const s = await ShopModel.findOne({ id })
+        if(s){
+            ctx.body = {
+                success: true,
+                info: s
+            }
+        }else{
+            ctx.body = {
+                success: false,
+                info: null
+            }
+        }
     }
 
     async getList(ctx, next){
         const req = ctx.request;
-        const {name, current = 1, pageSize = 20 } = req.query
+        const {name, current = 1, pageSize = 20, shop_category_id } = req.query
         const offset = pageSize * (current - 1)
         let filter = {};
         if(name) filter.name = name
+        if(shop_category_id) filter.shop_category_id = Number(shop_category_id)
         const list = await ShopModel.aggregate([
             { $match : filter },
             { $limit : Number(pageSize) },
             { $skip : Number(offset) },
-            { $project : { _id : 0 , __v : 0 } },
             {
                 $lookup: {
                     from: 'shopCategories',
                     localField: 'shop_category_id',
                     foreignField: 'id',
                     as: 'category',
-                    // pipeline: [{ $project : { _id : 0 , __v : 0 } }]
                 }
-            }
+            },
+            {
+                $lookup: {
+                    from: 'admins',
+                    localField: 'admin_id',
+                    foreignField: 'id',
+                    as: 'admin',
+                }
+            },
+            // {
+            //     $replaceRoot: { newRoot: { $mergeObjects: [ { $arrayElemAt: [ "$admin", 0 ] }, "$$ROOT" ] } } // 将 admin 属性合并作为 shop 的根属性返回
+            // },
+            { $project : { _id : 0 , __v : 0, category: { _id : 0 , __v : 0 }, admin: { _id : 0 , __v : 0 } } }, // 屏蔽输出的category字段，需要在 $lookup 后面
+            { $sort : { modify_time : -1 } }
         ])
         const count = await ShopModel.countDocuments(filter)
         ctx.body = {
@@ -91,11 +128,15 @@ class ShopController extends BaseController{
             }
             return
         }
+        const t = tf().format('YYYY-MM-DD HH:mm:ss')
         let data = {
             ...req.body,
             id: item_id,
-            create_time: tf().format('YYYY-MM-DD HH:mm:ss')
+            admin_id: ctx.session.admin_id,
+            create_time: t,
+            modify_time: t,
         };
+        await AdminModel.findOneAndUpdate({id: ctx.session.admin_id}, {$set: {shop_id: item_id}})
         const model = new ShopModel(data);
         model.save().then(r => {
 

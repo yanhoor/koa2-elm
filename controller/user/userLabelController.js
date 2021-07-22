@@ -14,7 +14,7 @@ class UserLabelController extends BaseController{
         const offset = pageSize * (current - 1)
         let filter = {};
         if(name) filter.name = name
-        const list = await userLabelModel.find(filter, {'_id': 0, '__v': 0}).limit(Number(pageSize)).skip(Number(offset))
+        const list = await userLabelModel.find(filter, {'_id': 0, '__v': 0}).limit(Number(pageSize)).skip(Number(offset)).sort({modify_time: -1})
         const count = await userLabelModel.countDocuments(filter)
         ctx.body = {
             list,
@@ -64,10 +64,12 @@ class UserLabelController extends BaseController{
             return
         }
 
+        const t = tf().format('YYYY-MM-DD HH:mm:ss')
         let newData = {
             ...req.body,
             id: user_label_id,
-            create_time: tf().format('YYYY-MM-DD HH:mm:ss')
+            create_time: t,
+            modify_time: t,
         }
         const userLabel = new userLabelModel(newData)
         userLabel.save().then(r => {

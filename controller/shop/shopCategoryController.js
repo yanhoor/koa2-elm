@@ -15,7 +15,7 @@ class ShopCategoryController extends BaseController{
         const offset = pageSize * (current - 1)
         let filter = {};
         if(name) filter.name = name
-        const list = await ShopCategoryModel.find(filter, {'_id': 0, '__v': 0}).limit(Number(pageSize)).skip(Number(offset))
+        const list = await ShopCategoryModel.find(filter, {'_id': 0, '__v': 0}).limit(Number(pageSize)).skip(Number(offset)).sort({modify_time: -1})
         const count = await ShopCategoryModel.countDocuments(filter)
         ctx.body = {
             list,
@@ -71,10 +71,12 @@ class ShopCategoryController extends BaseController{
             }
             return
         }
+        const t = tf().format('YYYY-MM-DD HH:mm:ss')
         let data = {
             ...req.body,
             id: cate_id,
-            create_time: tf().format('YYYY-MM-DD HH:mm:ss')
+            create_time: t,
+            modify_time: t,
         };
         const model = new ShopCategoryModel(data);
         model.save().then(r => {

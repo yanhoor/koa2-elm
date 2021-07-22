@@ -122,10 +122,14 @@ class AdminController extends BaseController{
             }
             return
         }
+        const t = tf().format('YYYY-MM-DD HH:mm:ss')
         let data = {
             ...req.body,
+            type: 2,
+            roles: ['admin'],
             id: admin_id,
-            create_time: tf().format('YYYY-MM-DD HH:mm:ss')
+            create_time: t,
+            modify_time: t,
         };
         const user = new AdminModel(data);
         user.save().then(r => {

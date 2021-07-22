@@ -5,6 +5,7 @@ const schema = mongoose.Schema({
     create_time: String,
     modify_time: String,
     name: String, // 店名
+    admin_id: Number, // 店主
     contract: String, // 联系电话
     shop_category_id: {type: Number, ref: 'ShopCategory'}, // 分类id
     desc: String, // 店铺简介
@@ -23,7 +24,7 @@ const schema = mongoose.Schema({
     tailAddress: String,
 })
 
-schema.index({ id: 1 });
+schema.index({ id: 1, modify_time: -1 });
 mongoose.set('useCreateIndex',true)
 
 module.exports = mongoose.model('Shop', schema);
