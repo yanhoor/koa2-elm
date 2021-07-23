@@ -1,5 +1,5 @@
 const BaseController = require('../baseController')
-const FoodCategoryModel = require('../../mongodb/model/shop/foodCategoryModel')
+const FoodCategoryModel = require('../../mongodb/model/shop/goodsCategoryModel')
 const tf = require('time-formater')
 
 class FoodCategoryController extends BaseController{

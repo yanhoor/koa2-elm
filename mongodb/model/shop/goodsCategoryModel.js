@@ -13,5 +13,5 @@ const schema = mongoose.Schema({
 schema.index({id: 1})
 mongoose.set('useCreateIndex',true)
 
-module.exports = mongoose.model('FoodCategory', schema, 'foodCategories')
+module.exports = mongoose.model('GoodsCategory', schema, 'goodsCategories')
 

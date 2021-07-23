@@ -1,6 +1,7 @@
 const users = require('./users')
 const admin = require('./admin')
 const shop = require('./shop')
+const goods = require('./goods')
 const address = require('./address')
 const cors = require('koa2-cors')
 const router = require('koa-router')()
@@ -23,5 +24,6 @@ module.exports = app => {
   app.use(admin.routes()).use(admin.allowedMethods())
   app.use(address.routes()).use(address.allowedMethods())
   app.use(shop.routes()).use(shop.allowedMethods())
+  app.use(goods.routes()).use(goods.allowedMethods())
   app.use(router.routes()).use(router.allowedMethods())
 }
