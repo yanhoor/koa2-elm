@@ -1,8 +1,9 @@
 const BaseController = require('../baseController')
-const FoodCategoryModel = require('../../mongodb/model/shop/goodsCategoryModel')
+const GoodsCategoryModel = require('../../mongodb/model/goods/goodsCategoryModel')
+const AdminModel = require('../../mongodb/model/admin/adminModel')
 const tf = require('time-formater')
 
-class FoodCategoryController extends BaseController{
+class GoodsCategoryController extends BaseController{
     constructor() {
         super();
         this.saveNode = this.saveNode.bind(this)
@@ -29,7 +30,7 @@ class FoodCategoryController extends BaseController{
                 ...req.body,
                 modify_time: tf().format('YYYY-MM-DD HH:mm:ss')
             }
-            await FoodCategoryModel.findOneAndUpdate({id}, {$set: d});
+            await GoodsCategoryModel.findOneAndUpdate({id}, {$set: d});
             ctx.body = {
                 success: true,
                 msg: '保存成功',
@@ -48,9 +49,9 @@ class FoodCategoryController extends BaseController{
             return
         }
         try{
-            item_id = await this.createId(this.idType.FOOD_CATEGORY_ID)
+            item_id = await this.createId(this.idType.GOODS_CATEGORY_ID)
         }catch(e){
-            console.log('获取食品分类id失败')
+            console.log('获取商品分类id失败')
             ctx.body = {
                 success: false,
                 msg: '获取数据失败'
@@ -66,7 +67,7 @@ class FoodCategoryController extends BaseController{
             create_time: t,
             modify_time: t,
         };
-        const model = new FoodCategoryModel(data);
+        const model = new GoodsCategoryModel(data);
         model.save().then(r => {
 
         }).catch(e => {
@@ -81,20 +82,13 @@ class FoodCategoryController extends BaseController{
 
     async getChildrenNodeList(ctx, next){
         const req = ctx.request
-        const { parent_id = 0, shop_id } = req.query
-        console.log('------------', shop_id)
-        try{
-            if(!shop_id) throw new Error('店铺id不能为空')
-        }catch(e){
-            ctx.body = {
-                success: false,
-                msg: e.message
-            }
-            return false
-        }
+        const { parent_id = 0 } = req.query
+        const admin = await AdminModel.findOne({ id: ctx.session.admin_id })
 
-        let filter = { parent_id, shop_id }
-        const list = await FoodCategoryModel.find(filter, {'_id': 0, '__v': 0})
+        let filter = { parent_id }
+        filter.shop_id = admin.shop_id
+        console.log('-------------', filter)
+        const list = await GoodsCategoryModel.find(filter, {'_id': 0, '__v': 0})
         ctx.body = {
             list,
             success: true
@@ -102,4 +96,4 @@ class FoodCategoryController extends BaseController{
     }
 }
 
-module.exports = new FoodCategoryController()
+module.exports = new GoodsCategoryController()

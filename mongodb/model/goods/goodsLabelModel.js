@@ -1,0 +1,22 @@
+const mongoose = require('mongoose')
+
+const schema = mongoose.Schema({
+    id: Number,
+    create_time: String,
+    modify_time: String,
+    shop_id: Number,
+    name: {
+        type: String,
+        required: [true, '名称不能为空']
+    },
+    color: {
+        type: String,
+        required: [true, '颜色不能为空']
+    },
+})
+
+schema.index({id: 1, modify_time: -1})
+mongoose.set('useCreateIndex',true)
+
+module.exports = mongoose.model('GoodsLabel', schema, 'goodsLabels')
+

@@ -91,7 +91,7 @@ class BaseController{
                 return resolve(true)
             }catch(e){
                console.log(e.message)
-                return reject(false)
+                return resolve(false)
             }
         })
     }

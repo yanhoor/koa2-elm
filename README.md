@@ -48,13 +48,13 @@
     // or if you prefer all default config, just use => app.use(session(app));
   ```
 
-- 在登录接口 `/admin/login` 登陆成功时，保存用户 `id`: `ctx.session.admin_id = admin.id`
+- 在登录接口 `/admin/login` 登陆成功时，保存用户 `id`: `ctx.session.admin = admin`
 
 - 对所有接口（除了登录和注册）进行拦截，校验登录状态
 
   ```javascript
   app.use(async (ctx, next) => {
-    if(!ctx.session.admin_id && !ctx.url.includes('/admin')){
+    if(!ctx.session.admin.id && !ctx.url.includes('/admin')){
       ctx.body = {
         code: 900,
         success: false,

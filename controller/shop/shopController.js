@@ -145,7 +145,8 @@ class ShopController extends BaseController{
         })
         ctx.body = {
             success: true,
-            msg: '保存成功'
+            msg: '保存成功',
+            id: item_id
         };
     }
 }
