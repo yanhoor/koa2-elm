@@ -3,7 +3,9 @@ const GoodsModel = require('../../mongodb/model/goods/goodsModel')
 const GoodsCategoryModel = require('../../mongodb/model/goods/goodsCategoryModel')
 const AdminModel = require('../../mongodb/model/admin/adminModel')
 const SkuController = require('./skuController')
+const excel = require('node-xlsx')
 const tf = require('time-formater')
+const fs = require('fs')
 
 class GoodsController extends BaseController{
     constructor() {
@@ -12,6 +14,7 @@ class GoodsController extends BaseController{
         this.save = this.save.bind(this)
         this.getList = this.getList.bind(this)
         this.detail = this.detail.bind(this)
+        this.exportFile = this.exportFile.bind(this)
     }
 
     async detail(ctx, next){
@@ -47,9 +50,7 @@ class GoodsController extends BaseController{
         const admin = await AdminModel.findOne({ id: ctx.session.admin_id })
         let filter = {};
         if(name) filter.name = name
-        if(admin.type == 2) {
-            filter.shop_id = admin.shop_id
-        }
+        filter.shop_id = admin.shop_id
         if(category_ids) filter.category_ids = Number(category_ids)
         const list = await GoodsModel.aggregate([
             { $match : filter },
@@ -161,6 +162,77 @@ class GoodsController extends BaseController{
             sku_ids.push(id)
         }
         return sku_ids
+    }
+
+    async exportFile(ctx, next){
+        const fileName = ctx.params.name
+        const req = ctx.request
+        const admin = await AdminModel.findOne({ id: ctx.session.admin_id })
+        let filter = {};
+        filter.shop_id = admin.shop_id
+        const list = await GoodsModel.aggregate([
+            { $match : filter },
+            {
+                $lookup: {
+                    from: 'goodsCategories',
+                    localField: 'category_ids',
+                    foreignField: 'id',
+                    as: 'category',
+                }
+            },
+            {
+                $lookup: {
+                    from: 'goodsLabels',
+                    localField: 'label_ids',
+                    foreignField: 'id',
+                    as: 'labelList',
+                }
+            },
+            // {
+            //     $replaceRoot: { newRoot: { $mergeObjects: [ { $arrayElemAt: [ "$admin", 0 ] }, "$$ROOT" ] } } // 将 admin 属性合并作为 shop 的根属性返回
+            // },
+            { $project : { _id : 0 , __v : 0, category: { _id : 0 , __v : 0 }, labelList: { _id : 0 , __v : 0 }} }, // 屏蔽输出的category字段，需要在 $lookup 后面
+            { $sort : { modify_time : -1 } }
+        ])
+        const rows = [['商品名称', '规格名称', '价格', '包装费', '商品描述', '所属分类', '标签', '创建时间', '最后修改时间']]
+        list.forEach((item) => {
+            item.sku_list.forEach((sku) => {
+                let rowItem = []
+                rowItem.push(item.name)
+                rowItem.push(sku.name)
+                rowItem.push(sku.price)
+                rowItem.push(sku.pack_fee)
+                rowItem.push(item.desc)
+                const cateList = item.category.map((cate) => cate.name)
+                const labelList = item.labelList.map((label) => label.name)
+                rowItem.push(cateList.join('/'))
+                rowItem.push(labelList.join('/'))
+                rowItem.push(new Date(item.create_time))
+                rowItem.push(new Date(item.modify_time))
+                rows.push(rowItem)
+            })
+        })
+        //koa自带的下载
+        ctx.set('Content-Type', 'application/vnd.openxmlformats')
+        ctx.set("Content-Disposition", "attachment; filename=" + fileName + ".xlsx")
+        const b = excel.build([{
+            name: 'goods', // sheet名
+            data: rows
+        }], {
+            '!cols': [
+                {wpx: 150},
+                {wpx: 100},
+                {wpx: 100},
+                {wpx: 100},
+                {wpx: 150},
+                {wpx: 150},
+                {wpx: 150},
+                {wpx: 150},
+                {wpx: 100},
+            ]
+        })
+        fs.writeFileSync('./public/template/goods_export_template.XLSX', b)
+        ctx.body = b
     }
 }
 

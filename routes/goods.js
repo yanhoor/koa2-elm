@@ -7,6 +7,7 @@ router.prefix('/goods')
 
 router.get('/list', GoodsController.getList)
 router.post('/save', GoodsController.save)
+router.get('/export/:name', GoodsController.exportFile)
 router.post('/category_add', GoodsCategoryController.saveNode)
 router.get('/category_children', GoodsCategoryController.getChildrenNodeList)
 router.get('/label_list', GoodsLabelController.itemList)
