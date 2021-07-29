@@ -45,15 +45,18 @@ class GoodsController extends BaseController{
 
     async getList(ctx, next){
         const req = ctx.request;
-        const {name, current = 1, pageSize = 20, category_ids } = req.query
+        let { name, current = 1, pageSize = 20, category_ids = [] } = req.body
         const offset = pageSize * (current - 1)
         const admin = await AdminModel.findOne({ id: ctx.session.admin_id })
         let filter = {};
         if(name) filter.name = name
         filter.shop_id = admin.shop_id
-        if(category_ids) filter.category_ids = Number(category_ids)
+        category_ids = category_ids.map(i => Number(i))
+        let p = []
+        if(category_ids.length) p.push({ $match : { category_ids: { $all: category_ids }} })
         const list = await GoodsModel.aggregate([
             { $match : filter },
+            ...p,
             { $limit : Number(pageSize) },
             { $skip : Number(offset) },
             {
@@ -102,6 +105,7 @@ class GoodsController extends BaseController{
             }
             return false
         }
+        const admin = await AdminModel.findOne({ id: ctx.session.admin_id })
 
         // 保存sku信息
         // const sku_id_list = await this.saveSkuInfo(sku_list)
@@ -110,7 +114,7 @@ class GoodsController extends BaseController{
         if(id){
             const d = {
                 ...postData,
-                shop_id: ctx.session.admin_id,
+                shop_id: admin.shop_id,
                 modify_time: tf().format('YYYY-MM-DD HH:mm:ss')
             }
             await GoodsModel.findOneAndUpdate({id}, {$set: d});
@@ -134,7 +138,6 @@ class GoodsController extends BaseController{
             return
         }
         const t = tf().format('YYYY-MM-DD HH:mm:ss')
-        const admin = await AdminModel.findOne({ id: ctx.session.admin_id })
         let data = {
             ...postData,
             shop_id: admin.shop_id,
@@ -188,6 +191,10 @@ class GoodsController extends BaseController{
                     as: 'labelList',
                 }
             },
+            // 展开数组项，决定最后输出的文档数
+            {
+                $unwind: '$sku_list'
+            },
             // {
             //     $replaceRoot: { newRoot: { $mergeObjects: [ { $arrayElemAt: [ "$admin", 0 ] }, "$$ROOT" ] } } // 将 admin 属性合并作为 shop 的根属性返回
             // },
@@ -196,21 +203,19 @@ class GoodsController extends BaseController{
         ])
         const rows = [['商品名称', '规格名称', '价格', '包装费', '商品描述', '所属分类', '标签', '创建时间', '最后修改时间']]
         list.forEach((item) => {
-            item.sku_list.forEach((sku) => {
-                let rowItem = []
-                rowItem.push(item.name)
-                rowItem.push(sku.name)
-                rowItem.push(sku.price)
-                rowItem.push(sku.pack_fee)
-                rowItem.push(item.desc)
-                const cateList = item.category.map((cate) => cate.name)
-                const labelList = item.labelList.map((label) => label.name)
-                rowItem.push(cateList.join('/'))
-                rowItem.push(labelList.join('/'))
-                rowItem.push(new Date(item.create_time))
-                rowItem.push(new Date(item.modify_time))
-                rows.push(rowItem)
-            })
+            let rowItem = []
+            rowItem.push(item.name)
+            rowItem.push(item.sku_list.name)
+            rowItem.push(item.sku_list.price)
+            rowItem.push(item.sku_list.pack_fee)
+            rowItem.push(item.desc)
+            const cateList = item.category.map((cate) => cate.name)
+            const labelList = item.labelList.map((label) => label.name)
+            rowItem.push(cateList.join('/'))
+            rowItem.push(labelList.join('/'))
+            rowItem.push(new Date(item.create_time))
+            rowItem.push(new Date(item.modify_time))
+            rows.push(rowItem)
         })
         //koa自带的下载
         ctx.set('Content-Type', 'application/vnd.openxmlformats')

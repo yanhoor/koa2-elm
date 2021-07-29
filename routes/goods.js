@@ -5,7 +5,7 @@ const GoodsController = require('../controller/goods/goodsController')
 
 router.prefix('/goods')
 
-router.get('/list', GoodsController.getList)
+router.post('/list', GoodsController.getList)
 router.post('/save', GoodsController.save)
 router.get('/export/:name', GoodsController.exportFile)
 router.post('/category_add', GoodsCategoryController.saveNode)

@@ -88,7 +88,7 @@ class AdminController extends BaseController{
 
     async register(ctx, next){
         const req = ctx.request;
-        const { mobile, password } = req.body
+        let { mobile, password, type } = req.body
         try{
             if(!mobile) throw new Error('名字不能为空')
             if(!password) throw new Error('密码不能为空')
@@ -122,11 +122,12 @@ class AdminController extends BaseController{
             }
             return
         }
+        type = Number(type)
         const t = tf().format('YYYY-MM-DD HH:mm:ss')
         let data = {
             ...req.body,
-            type: 2,
-            roles: ['admin'],
+            type,
+            roles: type === 1 ? ['super', 'admin'] : ['admin'],
             id: admin_id,
             create_time: t,
             modify_time: t,
