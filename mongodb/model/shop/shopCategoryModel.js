@@ -5,6 +5,7 @@ const schema = mongoose.Schema({
     create_time: String,
     modify_time: String,
     name: String,
+    icon: String,
 })
 
 schema.index({ id: 1, modify_time: -1 });

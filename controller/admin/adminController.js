@@ -5,11 +5,27 @@ const tf = require('time-formater')
 class AdminController extends BaseController{
     constructor() {
         super();
+        this.list = this.list.bind(this)
         this.login = this.login.bind(this)
         this.logout = this.logout.bind(this)
         this.register = this.register.bind(this)
         this.userInfo = this.userInfo.bind(this)
         this.updateAvatar = this.updateAvatar.bind(this)
+    }
+
+    async list(ctx, next){
+        const req = ctx.request
+        let { mobile, name, current = 1, pageSize = 20 } = req.query
+        const offset = pageSize * (current - 1)
+        let filter = {}
+        if(mobile) filter.mobile = mobile
+        if(name) filter.name = name
+        const list = await AdminModel.find(filter, {'_id': 0, '__v': 0}).limit(Number(pageSize)).skip(Number(offset)).sort({modify_time: -1})
+        const count = await AdminModel.countDocuments(filter)
+        ctx.body = {
+            list,
+            amount: count,
+        }
     }
 
     async userInfo(ctx, next){
@@ -88,9 +104,10 @@ class AdminController extends BaseController{
 
     async register(ctx, next){
         const req = ctx.request;
-        let { mobile, password, type } = req.body
+        let { name, mobile, password, type } = req.body
         try{
-            if(!mobile) throw new Error('名字不能为空')
+            if(!name) throw new Error('名字不能为空')
+            if(!mobile) throw new Error('手机号不能为空')
             if(!password) throw new Error('密码不能为空')
         }catch(e){
             ctx.body = {

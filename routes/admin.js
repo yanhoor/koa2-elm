@@ -3,6 +3,7 @@ const AdminController = require('../controller/admin/adminController')
 
 router.prefix('/admin')
 
+router.get('/list', AdminController.list)
 router.post('/register', AdminController.register)
 router.post('/login', AdminController.login)
 router.post('/logout', AdminController.logout)
