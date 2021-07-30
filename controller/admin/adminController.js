@@ -11,6 +11,7 @@ class AdminController extends BaseController{
         this.register = this.register.bind(this)
         this.userInfo = this.userInfo.bind(this)
         this.updateAvatar = this.updateAvatar.bind(this)
+        this.changeState = this.changeState.bind(this)
     }
 
     async list(ctx, next){
@@ -85,6 +86,12 @@ class AdminController extends BaseController{
                 msg: '该手机号尚未注册'
             }
             return
+        }else if(admin.state !== 1){
+            ctx.body = {
+                success: false,
+                msg: '该账号已禁止使用'
+            }
+            return
         }else if(admin.mobile === mobile){
             ctx.session.admin_id = admin.id
             ctx.body = {
@@ -106,7 +113,7 @@ class AdminController extends BaseController{
         const req = ctx.request;
         let { name, mobile, password, type } = req.body
         try{
-            if(!name) throw new Error('名字不能为空')
+            if(!name) throw new Error('用户名不能为空')
             if(!mobile) throw new Error('手机号不能为空')
             if(!password) throw new Error('密码不能为空')
         }catch(e){
@@ -144,6 +151,7 @@ class AdminController extends BaseController{
         let data = {
             ...req.body,
             type,
+            state: 1,
             roles: type === 1 ? ['super', 'admin'] : ['admin'],
             id: admin_id,
             create_time: t,
@@ -159,6 +167,23 @@ class AdminController extends BaseController{
             success: true,
             msg: '注册成功'
         };
+    }
+
+    async changeState(ctx, next){
+        const req = ctx.request
+        const { state, id } = req.body
+        if(id === ctx.session.admin_id){
+            ctx.body = {
+                success: false,
+                msg: '操作失败'
+            }
+            return false
+        }
+        await AdminModel.findOneAndUpdate({ id }, { $set: { state } })
+        ctx.body = {
+            success: true,
+            msg: '操作成功'
+        }
     }
 }
 
