@@ -7,6 +7,7 @@ const logger = require('koa-logger')
 const indexRouter = require('./routes/index')
 const session = require('koa-session')
 const path = require('path')
+const fs = require('fs')
 const koaBody = require('koa-body')
 const config = require('config-lite')(__dirname);
 
@@ -44,6 +45,11 @@ app.on('session:missed', (key,value,ctx) => console.log('==========session misse
 // error handler
 onerror(app)
 
+try{
+  fs.mkdirSync(path.join(__dirname, config.uploadDir))
+}catch(e){
+  console.log(e)
+}
 app.use(koaBody({
   // 支持文件格式
   multipart: true,
