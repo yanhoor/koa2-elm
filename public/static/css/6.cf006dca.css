@@ -1,0 +1,30 @@
+[data-v-15f2db7a] .actions {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  border-top: 1px solid #e9e9e9;
+  padding: 10px 16px;
+  background: #fff;
+  text-align: center;
+  z-index: 1;
+}
+
+.img_preview[data-v-23a62eec] {
+  width: 128px;
+  max-height: 128px;
+}
+.upload_action[data-v-23a62eec] {
+  width: 128px;
+  height: 128px;
+  border: 1px dashed #dedede;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  color: #999;
+}
+.upload_action > p[data-v-23a62eec] {
+  text-align: center;
+  margin-top: 10px;
+}
+

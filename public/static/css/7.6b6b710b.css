@@ -1,0 +1,19 @@
+.menu[data-v-f20127c0] {
+  min-height: 100vh;
+}
+
+.layout_left[data-v-60f35ab6] {
+  overflow: auto;
+  height: 100vh;
+}
+.layout_right[data-v-60f35ab6] {
+  min-height: 100vh;
+}
+.layout_right .layout_header[data-v-60f35ab6] {
+  background-color: #eff2f7;
+  padding: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
