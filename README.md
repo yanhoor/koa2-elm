@@ -1,6 +1,6 @@
 # koa2-elm
 
-后端接口，[对应管理系统](https://github.com/yanhoor/mall-web)
+后端接口，[对应管理系统](https://github.com/yanhoor/mall-web), [H5端](https://github.com/yanhoor/mall-mobile)
 
 ## 技术栈
 
@@ -8,7 +8,7 @@
 
 ## 项目运行
 
-- 确保已安装 `MongoDB`
+- 确保已安装运行 `MongoDB`
 
 - `npm i`
 

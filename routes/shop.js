@@ -5,6 +5,7 @@ const ShopController = require('../controller/shop/shopController')
 router.prefix('/shop')
 
 router.get('/category_list', ShopCategoryController.getList)
+router.get('/cate_list', ShopCategoryController.mobileList)
 router.get('/list', ShopController.getList)
 router.get('/detail', ShopController.getShopInfo)
 router.post('/category_save', ShopCategoryController.save)

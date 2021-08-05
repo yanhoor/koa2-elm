@@ -6,12 +6,13 @@ class ShopCategoryController extends BaseController{
     constructor() {
         super();
         this.getList = this.getList.bind(this)
+        this.mobileList = this.mobileList.bind(this)
         this.save = this.save.bind(this)
     }
 
     async getList(ctx, next){
         const req = ctx.request;
-        const {name, current = 1, pageSize = 0 } = req.query
+        const {name, current = 1, pageSize = 20 } = req.query
         const offset = pageSize * (current - 1)
         let filter = {};
         if(name) filter.name = name
@@ -21,6 +22,14 @@ class ShopCategoryController extends BaseController{
             list,
             success: true,
             amount: count,
+        }
+    }
+
+    async mobileList(ctx, next){
+        const list = await ShopCategoryModel.find({}, {'_id': 0, '__v': 0}).sort({modify_time: -1})
+        ctx.body = {
+            list,
+            success: true,
         }
     }
 

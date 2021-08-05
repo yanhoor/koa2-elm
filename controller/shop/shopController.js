@@ -40,12 +40,14 @@ class ShopController extends BaseController{
         const {name, current = 1, pageSize = 20, shop_category_id } = req.query
         const offset = pageSize * (current - 1)
         let filter = {};
-        if(name) filter.name = name
+        if(name) filter.name = { $regex: new RegExp(name, 'i')} // 模糊查询
         if(shop_category_id) filter.shop_category_id = Number(shop_category_id)
         const list = await ShopModel.aggregate([
+            // { $match : { $or: [filter] } },
             { $match : filter },
-            { $limit : Number(pageSize) },
+            { $sort : { modify_time : -1 } },
             { $skip : Number(offset) },
+            { $limit : Number(pageSize) },
             {
                 $lookup: {
                     from: 'shopCategories',
@@ -65,8 +67,7 @@ class ShopController extends BaseController{
             // {
             //     $replaceRoot: { newRoot: { $mergeObjects: [ { $arrayElemAt: [ "$admin", 0 ] }, "$$ROOT" ] } } // 将 admin 属性合并作为 shop 的根属性返回
             // },
-            { $project : { _id : 0 , __v : 0, category: { _id : 0 , __v : 0 }, admin: { _id : 0 , __v : 0 } } }, // 屏蔽输出的category字段，需要在 $lookup 后面
-            { $sort : { modify_time : -1 } }
+            { $project : { _id : 0 , __v : 0, category: { _id : 0 , __v : 0 }, admin: { _id : 0 , __v : 0, password: 0, roles: 0 } } }, // 屏蔽输出的category字段，需要在 $lookup 后面
         ])
         const count = await ShopModel.countDocuments(filter)
         ctx.body = {
@@ -76,8 +77,7 @@ class ShopController extends BaseController{
     }
 
     async save(ctx, next){
-        const req = ctx.request;
-        console.log(req.body)
+        const req = ctx.request
         const { id, name, contract, shop_category_id, desc, slogan, opening_start, opening_end, avatar, business_license, service_permission, deliver_fee, deliver_fee_start_amount, provinceCode, cityCode, countyCode, townCode, tailAddress } = req.body
         try{
             if(!name) throw new Error('店名不能为空')
@@ -113,7 +113,7 @@ class ShopController extends BaseController{
                 success: true,
                 msg: '保存成功'
             };
-            return true;
+            return true
         }
 
         // 新增
@@ -137,17 +137,17 @@ class ShopController extends BaseController{
             modify_time: t,
         };
         await AdminModel.findOneAndUpdate({id: ctx.session.admin_id}, {$set: {shop_id: item_id}})
-        const model = new ShopModel(data);
+        const model = new ShopModel(data)
         model.save().then(r => {
 
         }).catch(e => {
-            console.log('-----------------', e);
+            console.log('-----------------', e)
         })
         ctx.body = {
             success: true,
             msg: '保存成功',
             id: item_id
-        };
+        }
     }
 }
 

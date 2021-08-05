@@ -4,8 +4,8 @@ const shop = require('./shop')
 const goods = require('./goods')
 const address = require('./address')
 const upload = require('./upload')
+const mall = require('./mall')
 const cors = require('koa2-cors')
-const router = require('koa-router')()
 
 module.exports = app => {
   app.use(cors({
@@ -24,5 +24,5 @@ module.exports = app => {
   app.use(shop.routes()).use(shop.allowedMethods())
   app.use(goods.routes()).use(goods.allowedMethods())
   app.use(upload.routes()).use(upload.allowedMethods())
-  app.use(router.routes()).use(router.allowedMethods())
+  app.use(mall.routes()).use(mall.allowedMethods())
 }
