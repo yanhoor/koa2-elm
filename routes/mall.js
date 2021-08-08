@@ -1,10 +1,13 @@
-const router = require('koa-router')()
+const manageMall = require('koa-router')()
+const mobileMall = require('koa-router')()
 const HomeConfigController = require('../controller/mall/homeConfigController')
 
-router.prefix('/mall')
+manageMall.prefix('/mall')
+mobileMall.prefix('/mall')
 
-router.get('/home_config_list', HomeConfigController.list)
-router.get('/home_config_valid', HomeConfigController.valid)
-router.post('/home_config_save', HomeConfigController.save)
+manageMall.get('/home_config_list', HomeConfigController.list)
+manageMall.post('/home_config_save', HomeConfigController.save)
 
-module.exports = router
+mobileMall.get('/home_config_valid', HomeConfigController.valid)
+
+module.exports = { manageMall, mobileMall }
