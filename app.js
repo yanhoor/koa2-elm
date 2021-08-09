@@ -9,7 +9,8 @@ const session = require('koa-session')
 const path = require('path')
 const fs = require('fs')
 const koaBody = require('koa-body')
-const config = require('config-lite')(__dirname);
+const config = require('config-lite')(__dirname)
+const mount = require('koa-mount')
 
 require('./mongodb/db'); // 连接数据库
 
@@ -63,7 +64,14 @@ app.use(koaBody({
 
 app.use(json())
 app.use(logger())
-app.use(require('koa-static')(__dirname + '/public'))
+
+app.use(mount('/manage', require('koa-static')(__dirname + '/public/web'))) // 将 /public/web 下的目录挂载到 /manage，注意：接口也有/manage前缀
+
+app.use(mount('/mobile', require('koa-static')(__dirname + '/public/h5'))) // 将 /public/h5 下的目录挂载到 /mobile, 注意：接口也有/mobile前缀
+
+app.use(mount('/image', require('koa-static')(__dirname + '/public/upload'))) // 将/public/upload下的文件挂载到 /image，即访问路径为: 域名/image/xxxx.png
+
+// app.use(require('koa-static')(__dirname + '/public/upload'))
 
 app.use(views(__dirname + '/views', {
   extension: 'pug'

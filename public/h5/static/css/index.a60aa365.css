@@ -1,0 +1,19 @@
+:root {
+  /*必须以--开头*/
+  --background-color-page: #f7f7f7;
+  --text-color-hint: #aaa;
+}
+html,
+body,
+#app {
+  height: 100%;
+  width: 100%;
+  background-color: var(--background-color-page);
+}
+#app {
+  font-size: 3.733vw;
+}
+.page_container {
+  background-color: var(--background-color-page);
+}
+

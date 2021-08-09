@@ -1,0 +1,7 @@
+.detail_wrapper[data-v-7d433700] {
+  width: 80%;
+  max-height: calc(100vh - 150px);
+  margin: 0 auto;
+  overflow: auto;
+}
+
