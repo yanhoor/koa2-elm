@@ -14,7 +14,9 @@
 
 - `npm run dev`
 
-- 访问 `http://localhost:3000`
+- 管理端访问 `http://localhost:3000/manage/`
+
+- H5端访问 `http://localhost:3000/mobile/`
 
 ## 技术实现
 
