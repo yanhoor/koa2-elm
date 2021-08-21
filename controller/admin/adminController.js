@@ -20,8 +20,16 @@ class AdminController extends BaseController{
         const offset = pageSize * (current - 1)
         let filter = {}
         if(mobile) filter.mobile = mobile
-        if(name) filter.name = name
-        const list = await AdminModel.find(filter, {'_id': 0, '__v': 0}).limit(Number(pageSize)).skip(Number(offset)).sort({modify_time: -1})
+        if(name) filter.name = { $regex: new RegExp(name, 'i')} // 模糊查询
+        const list = await AdminModel
+            .find(filter, {'_id': 0, '__v': 0})
+            .sort({modify_time: -1})
+            .skip(Number(offset))
+            .limit(Number(pageSize))
+            .populate({
+                path: 'shop',
+                select: '-_id -__v'
+            })
         const count = await AdminModel.countDocuments(filter)
         ctx.body = {
             list,
@@ -31,7 +39,10 @@ class AdminController extends BaseController{
 
     async userInfo(ctx, next){
         const admin_id = ctx.session.admin_id
-        const admin = await AdminModel.findOne({ id: admin_id }, {'_id': 0, '__v': 0 })
+        const admin = await AdminModel.findOne({ id: admin_id }, {'_id': 0, '__v': 0 }).populate({
+            path: 'shop',
+            select: '-_id -__v'
+        })
         ctx.body = {
             success: true,
             info: admin
@@ -58,7 +69,7 @@ class AdminController extends BaseController{
         if(admin.avatar){
             await this.deleteFile(admin.avatar)
         }
-        await admin.update({$set: updateData})
+        await admin.updateOne({$set: updateData})
         ctx.body = {
             success: true,
             path: path

@@ -4,18 +4,38 @@ const tf = require('time-formater')
 
 class ShopCategoryController extends BaseController{
     constructor() {
-        super();
+        super()
+        this.detail = this.detail.bind(this)
         this.getList = this.getList.bind(this)
         this.mobileList = this.mobileList.bind(this)
         this.save = this.save.bind(this)
+    }
+
+    async detail(ctx, next){
+        const req = ctx.request
+        const { id } = req.query
+        if(!id){
+            ctx.body = {
+                success: false,
+                msg: '缺少必需参数：id'
+            }
+            return
+        }
+
+        const item = await ShopCategoryModel.findOne({id}, {'_id': 0, '__v': 0})
+
+        ctx.body = {
+            success: true,
+            data: item
+        }
     }
 
     async getList(ctx, next){
         const req = ctx.request;
         const {name, current = 1, pageSize = 20 } = req.query
         const offset = pageSize * (current - 1)
-        let filter = {};
-        if(name) filter.name = name
+        let filter = {}
+        if(name) filter.name = { $regex: new RegExp(name, 'i')} // 模糊查询
         const list = await ShopCategoryModel.find(filter, {'_id': 0, '__v': 0}).limit(Number(pageSize)).skip(Number(offset)).sort({modify_time: -1})
         const count = await ShopCategoryModel.countDocuments(filter)
         ctx.body = {

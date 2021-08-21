@@ -7,7 +7,7 @@ manageShop.prefix('/shop')
 mobileShop.prefix('/shop')
 
 manageShop.get('/category_list', ShopCategoryController.getList)
-manageShop.get('/cate_list', ShopCategoryController.mobileList)
+manageShop.get('/category_detail', ShopCategoryController.detail)
 manageShop.get('/list', ShopController.getList)
 manageShop.get('/detail', ShopController.getShopInfo)
 manageShop.post('/category_save', ShopCategoryController.save)

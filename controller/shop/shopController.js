@@ -21,17 +21,16 @@ class ShopController extends BaseController{
             }
             return
         }
-        const s = await ShopModel.findOne({ id })
-        if(s){
-            ctx.body = {
-                success: true,
-                info: s
-            }
-        }else{
-            ctx.body = {
-                success: false,
-                info: null
-            }
+        const s = await ShopModel.findOne({ id }, {'_id': 0, '__v': 0}).populate({
+            path: 'admin',
+            select: '-password -_id -__v'
+        }).populate({
+            path: 'shop_category',
+            select: '-_id -__v'
+        })
+        ctx.body = {
+            success: true,
+            info: s
         }
     }
 
@@ -42,33 +41,46 @@ class ShopController extends BaseController{
         let filter = {};
         if(name) filter.name = { $regex: new RegExp(name, 'i')} // 模糊查询
         if(shop_category_id) filter.shop_category_id = Number(shop_category_id)
-        const list = await ShopModel.aggregate([
-            // { $match : { $or: [filter] } },
-            { $match : filter },
-            { $sort : { modify_time : -1 } },
-            { $skip : Number(offset) },
-            { $limit : Number(pageSize) },
-            {
-                $lookup: {
-                    from: 'shopCategories',
-                    localField: 'shop_category_id',
-                    foreignField: 'id',
-                    as: 'category',
-                }
-            },
-            {
-                $lookup: {
-                    from: 'admins',
-                    localField: 'admin_id',
-                    foreignField: 'id',
-                    as: 'admin',
-                }
-            },
-            // {
-            //     $replaceRoot: { newRoot: { $mergeObjects: [ { $arrayElemAt: [ "$admin", 0 ] }, "$$ROOT" ] } } // 将 admin 属性合并作为 shop 的根属性返回
-            // },
-            { $project : { _id : 0 , __v : 0, category: { _id : 0 , __v : 0 }, admin: { _id : 0 , __v : 0, password: 0, roles: 0 } } }, // 屏蔽输出的category字段，需要在 $lookup 后面
-        ])
+        const list = await ShopModel
+            .find(filter, {'_id': 0, '__v': 0})
+            .sort({modify_time: -1})
+            .skip(Number(offset))
+            .limit(Number(pageSize))
+            .populate({
+                path: 'admin',
+                select: '-password -_id -__v'
+            })
+            .populate({
+                path: 'shop_category',
+                select: '-_id -__v'
+            })
+        // const list = await ShopModel.aggregate([
+        //     // { $match : { $or: [filter] } },
+        //     { $match : filter },
+        //     { $sort : { modify_time : -1 } },
+        //     { $skip : Number(offset) },
+        //     { $limit : Number(pageSize) },
+        //     {
+        //         $lookup: {
+        //             from: 'shopCategories',
+        //             localField: 'shop_category_id',
+        //             foreignField: 'id',
+        //             as: 'category',
+        //         }
+        //     },
+        //     {
+        //         $lookup: {
+        //             from: 'admins',
+        //             localField: 'admin_id',
+        //             foreignField: 'id',
+        //             as: 'admin',
+        //         }
+        //     },
+        //     // {
+        //     //     $replaceRoot: { newRoot: { $mergeObjects: [ { $arrayElemAt: [ "$admin", 0 ] }, "$$ROOT" ] } } // 将 admin 属性合并作为 shop 的根属性返回
+        //     // },
+        //     { $project : { _id : 0 , __v : 0, category: { _id : 0 , __v : 0 }, admin: { _id : 0 , __v : 0, password: 0, roles: 0 } } }, // 屏蔽输出的category字段，需要在 $lookup 后面
+        // ])
         const count = await ShopModel.countDocuments(filter)
         ctx.body = {
             list: list,
@@ -78,7 +90,7 @@ class ShopController extends BaseController{
 
     async save(ctx, next){
         const req = ctx.request
-        const { id, name, contract, shop_category_id, desc, slogan, opening_start, opening_end, avatar, business_license, service_permission, deliver_fee, deliver_fee_start_amount, provinceCode, cityCode, countyCode, townCode, tailAddress } = req.body
+        const { id, name, contract, shop_category_id, admin_id, desc, slogan, opening_start, opening_end, avatar, business_license, service_permission, deliver_fee, deliver_fee_start_amount, provinceCode, cityCode, countyCode, townCode, tailAddress } = req.body
         try{
             if(!name) throw new Error('店名不能为空')
             if(!contract) throw new Error('联系电话不能为空')
@@ -136,10 +148,9 @@ class ShopController extends BaseController{
             create_time: t,
             modify_time: t,
         };
-        await AdminModel.findOneAndUpdate({id: ctx.session.admin_id}, {$set: {shop_id: item_id}})
         const model = new ShopModel(data)
-        model.save().then(r => {
-
+        model.save().then( async (r) => {
+            await AdminModel.findOneAndUpdate({id: ctx.session.admin_id}, {$set: {shop_id: item_id}})
         }).catch(e => {
             console.log('-----------------', e)
         })

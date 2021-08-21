@@ -6,12 +6,32 @@ const tf = require('time-formater')
 class GoodsLabelController extends BaseController{
     constructor() {
         super();
+        this.detail = this.detail.bind(this)
         this.saveItem = this.saveItem.bind(this)
         this.itemList = this.itemList.bind(this)
     }
 
+    async detail(ctx, next){
+        const req = ctx.request
+        const { id } = req.query
+        if(!id){
+            ctx.body = {
+                success: false,
+                msg: '缺少必需参数：id'
+            }
+            return
+        }
+
+        const item = await goodsLabelModel.findOne({id}, {'_id': 0, '__v': 0})
+
+        ctx.body = {
+            success: true,
+            data: item
+        }
+    }
+
     async itemList(ctx, next){
-        const req = ctx.request;
+        const req = ctx.request
         const {name, current = 1, pageSize = 20 } = req.query
         const offset = pageSize * (current - 1)
         const admin = await AdminModel.findOne({ id: ctx.session.admin_id })
@@ -70,6 +90,13 @@ class GoodsLabelController extends BaseController{
 
         const t = tf().format('YYYY-MM-DD HH:mm:ss')
         const admin = await AdminModel.findOne({ id: ctx.session.admin_id })
+        if(!admin.shop_id){
+            ctx.body = {
+                success: false,
+                msg: '店铺不存在，请先添加店铺'
+            }
+            return
+        }
         let newData = {
             ...req.body,
             id: item_id,

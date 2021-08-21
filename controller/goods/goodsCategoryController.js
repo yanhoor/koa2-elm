@@ -30,11 +30,11 @@ class GoodsCategoryController extends BaseController{
                 ...req.body,
                 modify_time: tf().format('YYYY-MM-DD HH:mm:ss')
             }
-            await GoodsCategoryModel.findOneAndUpdate({id}, {$set: d});
+            const newCate = await GoodsCategoryModel.findOneAndUpdate({id}, {$set: d}, { useFindAndModify: false, new: true })
             ctx.body = {
                 success: true,
                 msg: '保存成功',
-                data: d
+                data: newCate
             };
             return true;
         }
