@@ -1,6 +1,6 @@
 # koa2-elm
 
-后端接口，[对应管理系统](https://github.com/yanhoor/mall-web), [H5端](https://github.com/yanhoor/mall-mobile)
+后端接口，[对应管理系统](https://github.com/yanhoor/mall-web-react), [H5端](https://github.com/yanhoor/mall-mobile)
 
 ## 技术栈
 
@@ -67,5 +67,5 @@
     await next()
   })
   ```
-  
+
 - 退出登录：直接使用 `ctx.session = null`，也会将新的 `cookie` 在响应头返回前端
