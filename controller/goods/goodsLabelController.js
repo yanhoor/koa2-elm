@@ -35,12 +35,13 @@ class GoodsLabelController extends BaseController{
         const {name, current = 1, pageSize = 20 } = req.query
         const offset = pageSize * (current - 1)
         const admin = await AdminModel.findOne({ id: ctx.session.admin_id })
-        let filter = {};
-        if(name) filter.name = name
+        let filter = {}
+        if(name) filter.name = { $regex: new RegExp(name, 'i')} // 模糊查询
         filter.shop_id = admin.shop_id
         const list = await goodsLabelModel.find(filter, {'_id': 0, '__v': 0}).limit(Number(pageSize)).skip(Number(offset)).sort({modify_time: -1})
         const count = await goodsLabelModel.countDocuments(filter)
         ctx.body = {
+            success: true,
             list,
             amount: count,
         }

@@ -9,7 +9,7 @@ const fs = require('fs')
 
 class GoodsController extends BaseController{
     constructor() {
-        super();
+        super()
         this.saveSkuInfo = this.saveSkuInfo.bind(this)
         this.save = this.save.bind(this)
         this.getList = this.getList.bind(this)
@@ -27,19 +27,16 @@ class GoodsController extends BaseController{
             }
             return
         }
-        const s = await GoodsModel.findOne({ id })
-        const cateIds = await GoodsCategoryModel.find({ id: {$in: s.category_idss } })
-        if(s){
-            ctx.body = {
-                success: true,
-                info: s,
-                cateIds
-            }
-        }else{
-            ctx.body = {
-                success: false,
-                info: null
-            }
+        const s = await GoodsModel.findOne({ id }, {'_id': 0, '__v': 0}).populate({
+            path: 'category_list',
+            select: '-_id -__v'
+        }).populate({
+            path: 'label_list',
+            select: '-_id -__v'
+        })
+        ctx.body = {
+            success: true,
+            info: s,
         }
     }
 
@@ -52,35 +49,47 @@ class GoodsController extends BaseController{
         if(name) filter.name = name
         filter.shop_id = admin.shop_id
         category_ids = category_ids.map(i => Number(i))
-        let p = []
-        if(category_ids.length) p.push({ $match : { category_ids: { $all: category_ids }} })
-        const list = await GoodsModel.aggregate([
-            { $match : filter },
-            ...p,
-            { $limit : Number(pageSize) },
-            { $skip : Number(offset) },
-            {
-                $lookup: {
-                    from: 'goodsCategories',
-                    localField: 'category_ids',
-                    foreignField: 'id',
-                    as: 'category',
-                }
-            },
-            {
-                $lookup: {
-                    from: 'goodsLabels',
-                    localField: 'label_ids',
-                    foreignField: 'id',
-                    as: 'labelList',
-                }
-            },
-            // {
-            //     $replaceRoot: { newRoot: { $mergeObjects: [ { $arrayElemAt: [ "$admin", 0 ] }, "$$ROOT" ] } } // 将 admin 属性合并作为 shop 的根属性返回
-            // },
-            { $project : { _id : 0 , __v : 0, category: { _id : 0 , __v : 0 }, labelList: { _id : 0 , __v : 0 }} }, // 屏蔽输出的category字段，需要在 $lookup 后面
-            { $sort : { modify_time : -1 } }
-        ])
+        if(category_ids.length) filter.category_ids = { $all: category_ids }
+        const list = await GoodsModel
+            .find(filter, {'_id': 0, '__v': 0})
+            .sort({modify_time: -1})
+            .skip(Number(offset))
+            .limit(Number(pageSize))
+            .populate({
+                path: 'category_list',
+                select: '-_id -__v'
+            })
+            .populate({
+                path: 'label_list',
+                select: '-_id -__v'
+            })
+        // const list = await GoodsModel.aggregate([
+        //     { $match : filter },
+        //     ...p,
+        //     { $limit : Number(pageSize) },
+        //     { $skip : Number(offset) },
+        //     {
+        //         $lookup: {
+        //             from: 'goodsCategories',
+        //             localField: 'category_ids',
+        //             foreignField: 'id',
+        //             as: 'category',
+        //         }
+        //     },
+        //     {
+        //         $lookup: {
+        //             from: 'goodsLabels',
+        //             localField: 'label_ids',
+        //             foreignField: 'id',
+        //             as: 'labelList',
+        //         }
+        //     },
+        //     // {
+        //     //     $replaceRoot: { newRoot: { $mergeObjects: [ { $arrayElemAt: [ "$admin", 0 ] }, "$$ROOT" ] } } // 将 admin 属性合并作为 shop 的根属性返回
+        //     // },
+        //     { $project : { _id : 0 , __v : 0, category: { _id : 0 , __v : 0 }, labelList: { _id : 0 , __v : 0 }} }, // 屏蔽输出的category字段，需要在 $lookup 后面
+        //     { $sort : { modify_time : -1 } }
+        // ])
         const count = await GoodsModel.countDocuments(filter)
         ctx.body = {
             list: list,
