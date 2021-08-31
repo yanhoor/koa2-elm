@@ -85,6 +85,7 @@ class ShopController extends BaseController{
         ctx.body = {
             list: list,
             amount: count,
+            success: true
         }
     }
 

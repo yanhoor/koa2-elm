@@ -42,6 +42,7 @@ class HomeConfigController extends BaseController{
         ctx.body = {
             list: list,
             amount: count,
+            success: true
         }
     }
 

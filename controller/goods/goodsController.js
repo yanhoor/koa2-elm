@@ -94,6 +94,7 @@ class GoodsController extends BaseController{
         ctx.body = {
             list: list,
             amount: count,
+            success: true
         }
     }
 

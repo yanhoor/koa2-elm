@@ -34,6 +34,7 @@ class AdminController extends BaseController{
         ctx.body = {
             list,
             amount: count,
+            success: true
         }
     }
 
